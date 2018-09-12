@@ -1,0 +1,98 @@
+---
+- name: webserver
+  hosts: server
+  become: yes
+  gather_facts: False
+  pre_tasks:
+    - name: Install python for Ansible
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+      changed_when: False
+    #- setup: # aka gather_facts
+
+  tasks:
+    - name: download pcre
+      get_url: 
+        url:
+          ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.42.tar.gz
+        dest:
+          /home/vagrant/
+    - name: untar pcre
+      unarchive:
+        src: 
+          /home/vagrant/pcre-8.42.tar.gz
+        dest:
+          /home/vagrant/
+    - name: configure pcre
+      command: ./configure
+      args:
+        chdir: /home/vagrant/pcre-8.42
+    - name: build pcre
+      command: make -j4
+      args:
+        chdir: /home/vagrant/pcre-8.42
+    - name: install pcre
+      become: true
+      command: make install
+      args:
+        chdir: /home/vagrant/pcre-8.42
+
+    - name: download zlib
+      get_url:
+        url:
+          http://zlib.net/zlib-1.2.11.tar.gz
+        dest:
+          /home/vagrant/
+    - name: untar zlib
+      unarchive:
+        src: 
+          /home/vagrant/zlib-1.2.11.tar.gz
+        dest:
+          /home/vagrant/
+    - name: configure zlib
+      command: ./configure
+      args:
+        chdir: /home/vagrant/zlib-1.2.11
+    - name: build zlib
+      command: make -j4
+      args:
+        chdir: /home/vagrant/zlib-1.2.11
+    - name: install zlib
+      become: true
+      command: make install
+      args:
+        chdir: /home/vagrant/zlib-1.2.11
+
+    - name: download nginx
+      get_url:
+        url:
+          https://nginx.org/download/nginx-1.15.2.tar.gz
+        dest:
+          /home/vagrant/
+    - name: untar nginx
+      unarchive:
+        src: 
+          /home/vagrant/nginx-1.15.2.tar.gz
+        dest:
+          /home/vagrant/
+    - name: configure nginx
+      command: ./configure
+      args:
+        chdir: /home/vagrant/nginx-1.15.2
+    - name: build nginx
+      command: make -j4
+      args:
+        chdir: /home/vagrant/nginx-1.15.2
+    - name: install nginx
+      become: true
+      command: make install
+      args:
+        chdir: /home/vagrant/nginx-1.15.2
+
+    - name: run nginx webserver
+      become: true
+      script: /usr/local/nginx/sbin/nginx
+
+
+
+
+
